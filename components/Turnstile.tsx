@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "0x4AAAAAAEE882CfdklUty0Z";
 
 function loadTurnstile(): Promise<void> {
   if (window.turnstile) return Promise.resolve();
