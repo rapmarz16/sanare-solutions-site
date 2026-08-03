@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -43,5 +43,9 @@ cpSync(privacySource, join(privacyDirectory, "index.html"));
 
 const notFoundSource = join(prerenderRoot, "404.html");
 if (existsSync(notFoundSource)) cpSync(notFoundSource, join(clientRoot, "404.html"));
+
+// The Cloudflare Vite plugin writes a Worker deployment redirect during the
+// Vinext build. Pages must continue reading the root Pages configuration.
+rmSync(join(root, ".wrangler", "deploy", "config.json"), { force: true });
 
 console.log("Cloudflare Pages output prepared in dist/client.");
