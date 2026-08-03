@@ -89,8 +89,8 @@ Add these Cloudflare Pages variables:
 | `CF_ACCOUNT_ID` | Encrypted secret | Cloudflare Email Service account |
 | `CF_EMAIL_API_TOKEN` | Encrypted secret | Scoped email-sending credential |
 | `FORM_FROM_EMAIL` | Plain variable | Defaults to `forms@sanaresolutions.ca` |
-| `ASSESSMENT_TO_EMAIL` | Plain variable | Defaults to `intake@sanaresolutions.ca` |
-| `CONTACT_TO_EMAIL` | Plain variable | Defaults to `questions@sanaresolutions.ca` |
+| `ASSESSMENT_TO_EMAIL` | Encrypted secret | Verified destination inbox for assessments |
+| `CONTACT_TO_EMAIL` | Encrypted secret | Verified destination inbox for general inquiries |
 
 Never commit real token or secret values. After setting a build variable, trigger a new deployment so the public Turnstile key is compiled into the site.
 

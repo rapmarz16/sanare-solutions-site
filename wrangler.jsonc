@@ -4,8 +4,6 @@
   "pages_build_output_dir": "./dist/client",
   "compatibility_date": "2026-08-03",
   "vars": {
-    "FORM_FROM_EMAIL": "forms@sanaresolutions.ca",
-    "ASSESSMENT_TO_EMAIL": "intake@sanaresolutions.ca",
-    "CONTACT_TO_EMAIL": "questions@sanaresolutions.ca"
+    "FORM_FROM_EMAIL": "forms@sanaresolutions.ca"
   }
 }
