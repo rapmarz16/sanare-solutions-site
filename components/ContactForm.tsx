@@ -59,6 +59,8 @@ export function ContactForm() {
       setStatus({ type: "success", message: "Thank you. Your message has been sent, and Sanare Solutions will follow up by email." });
       window.dispatchEvent(new CustomEvent("sanare:analytics", { detail: { event: "contact_submission_success" } }));
     } catch (error) {
+      setTurnstileToken("");
+      setTurnstileVersion((value) => value + 1);
       setStatus({
         type: "error",
         message: error instanceof Error ? error.message : "Your message could not be sent.",

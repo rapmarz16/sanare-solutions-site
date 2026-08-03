@@ -331,6 +331,8 @@ export function OpportunityFinder() {
       setStatusMessage("Your assessment has been sent. Sanare Solutions will review your context and follow up by email.");
       window.dispatchEvent(new CustomEvent("sanare:analytics", { detail: { event: "assessment_submission_success" } }));
     } catch (submissionError) {
+      setTurnstileToken("");
+      setTurnstileVersion((value) => value + 1);
       setStatus("error");
       setStatusMessage(submissionError instanceof Error ? submissionError.message : "Your assessment could not be sent.");
       window.dispatchEvent(new CustomEvent("sanare:analytics", { detail: { event: "assessment_submission_error" } }));
