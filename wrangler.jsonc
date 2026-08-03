@@ -3,6 +3,7 @@
   "name": "sanare-solutions-site",
   "pages_build_output_dir": "./dist/client",
   "compatibility_date": "2026-08-03",
+  "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "FORM_FROM_EMAIL": "forms@sanaresolutions.ca",
     "NEXT_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAEE882CfdklUty0Z"

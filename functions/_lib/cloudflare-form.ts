@@ -1,10 +1,10 @@
+import { sendPurelymailEmail } from "./purelymail-smtp";
+
 export interface FormEnv {
-  CF_ACCOUNT_ID?: string;
-  CF_EMAIL_API_TOKEN?: string;
   TURNSTILE_SECRET_KEY?: string;
   FORM_FROM_EMAIL?: string;
-  ASSESSMENT_TO_EMAIL?: string;
-  CONTACT_TO_EMAIL?: string;
+  PURELYMAIL_SMTP_USERNAME?: string;
+  PURELYMAIL_SMTP_PASSWORD?: string;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -105,28 +105,26 @@ async function verifyTurnstile(request: Request, payload: JsonRecord, env: FormE
 async function sendEmail(
   env: FormEnv,
   to: string,
+  replyTo: string,
   subject: string,
   text: string,
   html: string,
 ) {
-  if (!env.CF_ACCOUNT_ID || !env.CF_EMAIL_API_TOKEN) return { ok: false, configuration: true };
-  const endpoint = `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(env.CF_ACCOUNT_ID)}/email/sending/send`;
+  const from = env.FORM_FROM_EMAIL || "forms@sanaresolutions.ca";
+  const username = env.PURELYMAIL_SMTP_USERNAME || from;
+  if (!env.PURELYMAIL_SMTP_PASSWORD) return { ok: false, configuration: true };
   try {
-    const result = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.CF_EMAIL_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to,
-        from: env.FORM_FROM_EMAIL || "forms@sanaresolutions.ca",
-        subject,
-        text,
-        html,
-      }),
+    await sendPurelymailEmail({
+      username,
+      password: env.PURELYMAIL_SMTP_PASSWORD,
+      from,
+      to,
+      replyTo,
+      subject,
+      text,
+      html,
     });
-    return { ok: result.ok, configuration: false };
+    return { ok: true, configuration: false };
   } catch {
     return { ok: false, configuration: false };
   }
@@ -238,7 +236,7 @@ export async function handleAssessment(request: Request, env: FormEnv) {
     htmlLine("Recommended categories", categories), htmlLine("Source", sourceUrl), htmlLine("UTM", JSON.stringify(utm)),
   ].join("");
   const html = `<div style="font-family:Arial,sans-serif;color:#17211e;max-width:760px"><h1 style="color:#0b211b">New AI Opportunity Finder assessment</h1><table style="border-collapse:collapse;width:100%">${rows}</table><p style="font-size:12px;color:#65716c">Consent recorded ${escapeHtml(clean(payload.consentTimestamp, 80) || timestamp)}.</p></div>`;
-  const sent = await sendEmail(env, env.ASSESSMENT_TO_EMAIL || "intake@sanaresolutions.ca", `AI Opportunity Finder — ${companyName}`, lines.join("\n"), html);
+  const sent = await sendEmail(env, "intake@sanaresolutions.ca", workEmail, `AI Opportunity Finder — ${companyName}`, lines.join("\n"), html);
   if (!sent.ok) return response(sent.configuration ? 503 : 502, sent.configuration
     ? "Email delivery is still being configured. Please use the email fallback below."
     : "The assessment could not be delivered. Please use the email fallback below.");
@@ -276,7 +274,7 @@ export async function handleContact(request: Request, env: FormEnv) {
   ].join("\n");
   const rows = [htmlLine("Submitted", timestamp), htmlLine("Name", name), htmlLine("Work email", email), htmlLine("Company", company), htmlLine("Message", message), htmlLine("Source", sourceUrl), htmlLine("UTM", JSON.stringify(utm))].join("");
   const html = `<div style="font-family:Arial,sans-serif;color:#17211e;max-width:760px"><h1 style="color:#0b211b">New general website inquiry</h1><table style="border-collapse:collapse;width:100%">${rows}</table><p style="font-size:12px;color:#65716c">Consent confirmed at ${escapeHtml(timestamp)}.</p></div>`;
-  const sent = await sendEmail(env, env.CONTACT_TO_EMAIL || "questions@sanaresolutions.ca", `Website inquiry — ${company || name}`, text, html);
+  const sent = await sendEmail(env, "intake@sanaresolutions.ca", email, `Website inquiry — ${company || name}`, text, html);
   if (!sent.ok) return response(sent.configuration ? 503 : 502, sent.configuration
     ? "Email delivery is still being configured. Please use the email fallback below."
     : "The message could not be delivered. Please use the email fallback below.");

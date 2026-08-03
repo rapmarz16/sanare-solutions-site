@@ -8,7 +8,7 @@ Production website for [sanaresolutions.ca](https://sanaresolutions.ca), built f
 - Six service areas and four accessible industry panels
 - Eight-step AI Opportunity Finder with session persistence, transparent recommendation rules, review, validation, and email fallback
 - General inquiry form with explicit consent
-- Cloudflare Pages Functions with server-side validation, Turnstile verification, honeypot protection, and Cloudflare Email Service delivery
+- Cloudflare Pages Functions with server-side validation, Turnstile verification, honeypot protection, and Purelymail SMTP delivery
 - SEO metadata, Organization structured data, sitemap, robots rules, branded favicon, and social-sharing card
 - Security headers, reduced-motion support, keyboard interaction, visible focus, and narrow-screen layouts down to 320 px
 
@@ -18,7 +18,7 @@ Production website for [sanaresolutions.ca](https://sanaresolutions.ca), built f
 - Modern CSS without an animation or component library
 - Cloudflare Pages Functions
 - Cloudflare Turnstile
-- Cloudflare Email Service for outbound delivery with Purelymail handling inbound mail
+- Purelymail for inbound routing and authenticated outbound SMTP delivery
 - Cloudflare Web Analytics, enabled in the Pages dashboard
 
 ## Local development
@@ -56,22 +56,20 @@ Create a Cloudflare Pages project connected to `rapmarz16/sanare-solutions-site`
 
 The repository’s `wrangler.jsonc` is the Pages configuration source of truth. The `functions/` folder supplies `/api/assessment` and `/api/contact`.
 
-### 1. Configure outbound Email Service with Purelymail inbound routing
+### 1. Configure Purelymail form delivery
 
-1. Keep the existing Purelymail MX records and forwarding rules. Do not enable Cloudflare Email Routing for the domain.
-2. In Cloudflare, open **Compute > Email Service > Email Sending** and onboard `sanaresolutions.ca` for outbound mail from `forms@sanaresolutions.ca`.
-3. Review the DNS changes. Cloudflare Email Sending uses separate `cf-bounce` SPF, DKIM, and bounce records and does not replace Purelymail's root MX records.
-4. Add and verify the personal Gmail inbox as a Cloudflare destination address.
-5. Create a scoped Cloudflare API token with **Account > Email Sending > Edit** permission.
-6. Add `CF_ACCOUNT_ID`, `CF_EMAIL_API_TOKEN`, `ASSESSMENT_TO_EMAIL`, and `CONTACT_TO_EMAIL` as encrypted Pages secrets. Set both destination variables to the verified Gmail inbox. The public `@sanaresolutions.ca` addresses remain unchanged.
+1. Keep the existing Purelymail MX records and forwarding rules. Do not enable Cloudflare Email Routing or paid Cloudflare Email Sending.
+2. Create a dedicated Purelymail user for `forms@sanaresolutions.ca` and use a unique mailbox or app password.
+3. Add `PURELYMAIL_SMTP_PASSWORD` as an encrypted Pages secret. Add `PURELYMAIL_SMTP_USERNAME` only when it differs from `forms@sanaresolutions.ca`.
+4. Deploy the site. Both assessment and general-inquiry notifications are sent from `forms@sanaresolutions.ca` to `intake@sanaresolutions.ca`; Purelymail then applies the existing forwarding rules.
 
-Sending directly to the verified Gmail destination avoids depending on forwarding for form delivery and remains available on Cloudflare's verified-destination path. Purelymail continues to receive and forward ordinary inbound messages sent to the Sanare aliases.
+The Pages Function connects to `smtp.purelymail.com` on TLS port 465. Visitor email addresses are placed in the `Reply-To` header so the notification can be answered directly. Keep the SMTP password out of source control and use a dedicated mailbox because Purelymail app passwords provide mailbox access.
 
 Official references:
 
-- [Cloudflare Email Service](https://developers.cloudflare.com/email-service/)
-- [Email Sending domain configuration](https://developers.cloudflare.com/email-service/configuration/domains/)
-- [Email Service pricing and verified destinations](https://developers.cloudflare.com/email-service/platform/pricing/)
+- [Purelymail technical setup](https://smtp.purelymail.com/docs/setup/technical)
+- [Purelymail app passwords](https://purelymail.com/docs/twoFactorAuthentication)
+- [Cloudflare outbound TCP sockets](https://developers.cloudflare.com/workers/runtime-apis/tcp-sockets/)
 
 ### 2. Configure Turnstile
 
@@ -87,11 +85,9 @@ Add these Cloudflare Pages variables:
 |---|---|---|
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public Wrangler variable | Public browser widget key |
 | `TURNSTILE_SECRET_KEY` | Encrypted secret | Server-side verification |
-| `CF_ACCOUNT_ID` | Encrypted secret | Cloudflare Email Service account |
-| `CF_EMAIL_API_TOKEN` | Encrypted secret | Scoped email-sending credential |
 | `FORM_FROM_EMAIL` | Plain variable | Defaults to `forms@sanaresolutions.ca` |
-| `ASSESSMENT_TO_EMAIL` | Encrypted secret | Verified destination inbox for assessments |
-| `CONTACT_TO_EMAIL` | Encrypted secret | Verified destination inbox for general inquiries |
+| `PURELYMAIL_SMTP_USERNAME` | Encrypted secret (optional) | Defaults to `forms@sanaresolutions.ca` |
+| `PURELYMAIL_SMTP_PASSWORD` | Encrypted secret | Dedicated Purelymail mailbox/app password |
 
 Never commit real token or secret values. The Turnstile site key is intentionally public and is stored in `wrangler.jsonc`; all private values belong in encrypted Pages secrets.
 

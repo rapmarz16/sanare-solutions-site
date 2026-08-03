@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
+import { registerHooks } from "node:module";
 import test from "node:test";
+
+const socketModuleUrl = `data:text/javascript,${encodeURIComponent("export const connect = (...args) => globalThis.__sanareSmtpConnect(...args);")}`;
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier === "cloudflare:sockets") return { url: socketModuleUrl, shortCircuit: true };
+    return nextResolve(specifier, context);
+  },
+});
 
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 
@@ -19,6 +28,40 @@ const context = {
 const baseEnv = {
   ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
 };
+
+function createSmtpSocket(transcript) {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  let controller;
+  const respond = (message) => controller.enqueue(encoder.encode(message));
+  const readable = new ReadableStream({
+    start(streamController) {
+      controller = streamController;
+      queueMicrotask(() => respond("220 smtp.purelymail.com ESMTP ready\r\n"));
+    },
+  });
+  const writable = new WritableStream({
+    write(chunk) {
+      const command = decoder.decode(chunk);
+      transcript.push(command);
+      if (command.startsWith("EHLO")) respond("250-smtp.purelymail.com\r\n250-AUTH PLAIN LOGIN\r\n250 SIZE 52428800\r\n");
+      else if (command.startsWith("AUTH ")) respond("235 2.7.0 Authentication successful\r\n");
+      else if (command.startsWith("MAIL FROM:")) respond("250 2.1.0 Sender accepted\r\n");
+      else if (command.startsWith("RCPT TO:")) respond("250 2.1.5 Recipient accepted\r\n");
+      else if (command.startsWith("DATA")) respond("354 End data with <CR><LF>.<CR><LF>\r\n");
+      else if (command.startsWith("QUIT")) respond("221 2.0.0 Closing connection\r\n");
+      else if (command.startsWith("RSET")) respond("250 2.0.0 Reset\r\n");
+      else if (command.endsWith("\r\n.\r\n")) respond("250 2.0.0 Message accepted\r\n");
+    },
+  });
+  return {
+    readable,
+    writable,
+    opened: Promise.resolve({ remoteAddress: "127.0.0.1", localAddress: null }),
+    closed: Promise.resolve(),
+    close: async () => {},
+  };
+}
 
 test("server-renders the complete Sanare Solutions page", async () => {
   const worker = await loadWorker();
@@ -55,11 +98,12 @@ test("validates and routes contact submissions without exposing secrets", async 
   const worker = await loadWorker();
   const originalFetch = globalThis.fetch;
   const outbound = [];
+  const smtpTranscript = [];
+  globalThis.__sanareSmtpConnect = () => createSmtpSocket(smtpTranscript);
   globalThis.fetch = async (input, init = {}) => {
     const url = String(input);
     outbound.push({ url, init });
     if (url.includes("turnstile")) return Response.json({ success: true });
-    if (url.includes("email/sending/send")) return Response.json({ success: true });
     return new Response("Unexpected request", { status: 500 });
   };
 
@@ -80,21 +124,24 @@ test("validates and routes contact submissions without exposing secrets", async 
       }),
     }), {
       ...baseEnv,
-      CF_ACCOUNT_ID: "account-id",
-      CF_EMAIL_API_TOKEN: "secret-token",
+      PURELYMAIL_SMTP_USERNAME: "forms@sanaresolutions.ca",
+      PURELYMAIL_SMTP_PASSWORD: "smtp-secret",
       TURNSTILE_SECRET_KEY: "turnstile-secret",
-      CONTACT_TO_EMAIL: "questions@sanaresolutions.ca",
     }, context);
 
     assert.equal(response.status, 200);
-    assert.equal(outbound.length, 2);
-    const emailPayload = JSON.parse(String(outbound[1].init.body));
-    assert.equal(emailPayload.to, "questions@sanaresolutions.ca");
-    assert.match(emailPayload.subject, /Website inquiry/i);
-    assert.match(emailPayload.text, /Test Person/);
-    assert.doesNotMatch(JSON.stringify(emailPayload), /secret-token|turnstile-secret/);
+    assert.equal(outbound.length, 1);
+    const emailPayload = smtpTranscript.join("");
+    assert.match(emailPayload, /To: intake@sanaresolutions\.ca/i);
+    assert.match(emailPayload, /Reply-To: person@example\.com/i);
+    const encodedSubject = emailPayload.match(/Subject: =\?UTF-8\?B\?([^?]+)\?=/i)?.[1] ?? "";
+    assert.match(Buffer.from(encodedSubject, "base64").toString("utf8"), /Website inquiry/i);
+    const encodedText = emailPayload.match(/Content-Type: text\/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n([\s\S]*?)\r\n--sanare_/i)?.[1] ?? "";
+    assert.match(Buffer.from(encodedText.replace(/\s/g, ""), "base64").toString("utf8"), /Test Person/);
+    assert.doesNotMatch(emailPayload, /smtp-secret|turnstile-secret/);
   } finally {
     globalThis.fetch = originalFetch;
+    delete globalThis.__sanareSmtpConnect;
   }
 });
 
