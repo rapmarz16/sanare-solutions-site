@@ -73,7 +73,10 @@ test("server-renders the complete Sanare Solutions page", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Sanare Solutions \| Practical AI and Business Automation<\/title>/i);
-  assert.match(html, /Transform the way your business works with AI built around you/i);
+  assert.match(html, /Eliminate repetitive work without replacing the systems your team already knows/i);
+  assert.match(html, /Book a 30-minute workflow review/i);
+  assert.match(html, /Take the 3-minute AI assessment/i);
+  assert.match(html, /Toronto-based/i);
   assert.match(html, /id="services"/i);
   assert.match(html, /id="industries"/i);
   assert.match(html, /id="assessment"/i);

@@ -123,29 +123,30 @@ export default function Home() {
           <div className="hero-glow" aria-hidden="true" />
           <div className="container hero-grid">
             <div className="hero-copy reveal">
-              <p className="eyebrow">Practical AI for real business operations</p>
-              <h1 id="hero-title">Transform the way your business works with AI built around you.</h1>
+              <p className="eyebrow">Practical AI automation for growing businesses</p>
+              <h1 id="hero-title">Eliminate repetitive work without replacing the systems your team already knows.</h1>
               <p className="hero-lede">
-                Sanare Solutions designs tailored automations, intelligent workflows, and team enablement for organizations that want measurable productivity gains without disrupting the systems that already work.
+                Sanare Solutions designs tailored AI and workflow automations for Microsoft 365, Google Workspace, email, documents and everyday business operations—helping teams reduce manual steps, respond faster and work more consistently.
               </p>
               <div className="button-row">
-                <a className="button button-primary" href="#assessment" data-event="hero_primary_cta_click">
-                  Find your AI opportunities <span aria-hidden="true">→</span>
-                </a>
                 <a
-                  className="button button-secondary"
+                  className="button button-primary"
                   href={CONSULTATION_BOOKING_URL}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label="Book a consultation through Google Calendar (opens in a new tab)"
-                  data-event="hero_secondary_cta_click"
+                  aria-label="Book a 30-minute workflow review through Google Calendar (opens in a new tab)"
+                  data-event="hero_primary_cta_click"
                 >
-                  Book a consultation
+                  Book a 30-minute workflow review
+                </a>
+                <a className="button button-secondary" href="#assessment" data-event="hero_secondary_cta_click">
+                  Take the 3-minute AI assessment <span aria-hidden="true">→</span>
                 </a>
               </div>
               <p className="trust-line">
-                <span>Google Workspace</span><i /> <span>Microsoft 365</span><i /> <span>Email</span><i />
-                <span>Operations</span><i /> <span>Training</span>
+                <span>Toronto-based</span><i aria-hidden="true" />
+                <span>Designed around your existing tools</span><i aria-hidden="true" />
+                <span>Security and human review from day one</span>
               </p>
             </div>
 
