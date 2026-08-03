@@ -18,7 +18,7 @@ Production website for [sanaresolutions.ca](https://sanaresolutions.ca), built f
 - Modern CSS without an animation or component library
 - Cloudflare Pages Functions
 - Cloudflare Turnstile
-- Cloudflare Email Service / Email Routing
+- Cloudflare Email Service for outbound delivery with Purelymail handling inbound mail
 - Cloudflare Web Analytics, enabled in the Pages dashboard
 
 ## Local development
@@ -56,21 +56,22 @@ Create a Cloudflare Pages project connected to `rapmarz16/sanare-solutions-site`
 
 The repository’s `wrangler.jsonc` is the Pages configuration source of truth. The `functions/` folder supplies `/api/assessment` and `/api/contact`.
 
-### 1. Configure Email Service and routing
+### 1. Configure outbound Email Service with Purelymail inbound routing
 
-1. In Cloudflare, onboard `sanaresolutions.ca` to Email Service and enable Email Routing.
-2. Create and verify the destination mailbox that should receive routed messages.
-3. Create active routing rules for `intake@sanaresolutions.ca` and `questions@sanaresolutions.ca`.
-4. Onboard the sending domain/address required for `forms@sanaresolutions.ca`.
-5. Create a scoped Cloudflare API token that can send email for this account.
+1. Keep the existing Purelymail MX records and forwarding rules. Do not enable Cloudflare Email Routing for the domain.
+2. In Cloudflare, open **Compute > Email Service > Email Sending** and onboard `sanaresolutions.ca` for outbound mail from `forms@sanaresolutions.ca`.
+3. Review the DNS changes. Cloudflare Email Sending uses separate `cf-bounce` SPF, DKIM, and bounce records and does not replace Purelymail's root MX records.
+4. Add and verify the personal Gmail inbox as a Cloudflare destination address.
+5. Create a scoped Cloudflare API token with **Account > Email Sending > Edit** permission.
+6. Add `CF_ACCOUNT_ID`, `CF_EMAIL_API_TOKEN`, `ASSESSMENT_TO_EMAIL`, and `CONTACT_TO_EMAIL` as encrypted Pages secrets. Set both destination variables to the verified Gmail inbox. The public `@sanaresolutions.ca` addresses remain unchanged.
 
-Cloudflare permits free sending to verified destination addresses when Email Routing is configured. If the two `@sanaresolutions.ca` aliases are not accepted as outbound destinations on the account plan, set `ASSESSMENT_TO_EMAIL` and `CONTACT_TO_EMAIL` to the verified forwarding mailbox instead; the public site addresses remain unchanged.
+Sending directly to the verified Gmail destination avoids depending on forwarding for form delivery and remains available on Cloudflare's verified-destination path. Purelymail continues to receive and forward ordinary inbound messages sent to the Sanare aliases.
 
 Official references:
 
-- [Email Routing addresses and rules](https://developers.cloudflare.com/email-service/configuration/email-routing-addresses/)
 - [Cloudflare Email Service](https://developers.cloudflare.com/email-service/)
-- [Email send bindings and restrictions](https://developers.cloudflare.com/email-service/configuration/send-bindings/)
+- [Email Sending domain configuration](https://developers.cloudflare.com/email-service/configuration/domains/)
+- [Email Service pricing and verified destinations](https://developers.cloudflare.com/email-service/platform/pricing/)
 
 ### 2. Configure Turnstile
 
@@ -84,7 +85,7 @@ Add these Cloudflare Pages variables:
 
 | Variable | Scope | Purpose |
 |---|---|---|
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Build environment | Public browser widget key |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public Wrangler variable | Public browser widget key |
 | `TURNSTILE_SECRET_KEY` | Encrypted secret | Server-side verification |
 | `CF_ACCOUNT_ID` | Encrypted secret | Cloudflare Email Service account |
 | `CF_EMAIL_API_TOKEN` | Encrypted secret | Scoped email-sending credential |
@@ -92,7 +93,7 @@ Add these Cloudflare Pages variables:
 | `ASSESSMENT_TO_EMAIL` | Encrypted secret | Verified destination inbox for assessments |
 | `CONTACT_TO_EMAIL` | Encrypted secret | Verified destination inbox for general inquiries |
 
-Never commit real token or secret values. After setting a build variable, trigger a new deployment so the public Turnstile key is compiled into the site.
+Never commit real token or secret values. The Turnstile site key is intentionally public and is stored in `wrangler.jsonc`; all private values belong in encrypted Pages secrets.
 
 ### 3. Add the custom domain
 
