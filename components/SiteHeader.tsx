@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { CONSULTATION_BOOKING_URL } from "@/lib/site";
+
 const links = [
   ["Services", "#services"],
   ["Industries", "#industries"],
@@ -41,7 +43,10 @@ export function SiteHeader() {
         </nav>
         <a
           className="button nav-cta"
-          href="mailto:intake@sanaresolutions.ca?subject=Consultation%20request"
+          href={CONSULTATION_BOOKING_URL}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Book a consultation through Google Calendar (opens in a new tab)"
         >
           Book a consultation
         </a>
@@ -63,7 +68,10 @@ export function SiteHeader() {
           ))}
           <a
             className="button button-primary"
-            href="mailto:intake@sanaresolutions.ca?subject=Consultation%20request"
+            href={CONSULTATION_BOOKING_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Book a consultation through Google Calendar (opens in a new tab)"
             onClick={() => setOpen(false)}
           >
             Book a consultation

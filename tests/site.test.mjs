@@ -79,6 +79,9 @@ test("server-renders the complete Sanare Solutions page", async () => {
   assert.match(html, /id="assessment"/i);
   assert.match(html, /AI Opportunity Finder/i);
   assert.match(html, /href="\/privacy"/i);
+  const bookingLinks = html.match(/href="https:\/\/calendar\.app\.google\/d57sRSm27Q3RN9XeA"/g) ?? [];
+  assert.equal(bookingLinks.length, 3);
+  assert.match(html, /Book a consultation through Google Calendar \(opens in a new tab\)/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 
@@ -91,6 +94,7 @@ test("renders the privacy notice", async () => {
   const html = await response.text();
   assert.match(html, /retained for up to 12 months/i);
   assert.match(html, /Cloudflare Web Analytics/i);
+  assert.match(html, /Google Calendar appointment page/i);
   assert.match(html, /questions@sanaresolutions\.ca/i);
 });
 

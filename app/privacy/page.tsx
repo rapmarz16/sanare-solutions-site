@@ -52,6 +52,11 @@ export default function PrivacyPage() {
           Website submissions are processed by Cloudflare Pages and Cloudflare security services, then delivered by email to Sanare Solutions. The website does not intentionally maintain a separate database of form submissions in version one. Cloudflare may process limited technical data according to its own service terms and privacy commitments.
         </p>
 
+        <h2>Appointment booking</h2>
+        <p>
+          Selecting “Book a consultation” opens a Google Calendar appointment page. Information you enter there is processed by Google and shared with Sanare Solutions for scheduling and responding to your appointment request. Google&apos;s terms and privacy practices apply to that service. Please do not include sensitive or regulated information in the booking form.
+        </p>
+
         <h2>Analytics</h2>
         <p>
           Cloudflare Web Analytics may be used to understand aggregate website traffic and performance. Names, email addresses, free-text form responses, and assessment answers are not intentionally sent to analytics. Advertising trackers are not enabled by default.

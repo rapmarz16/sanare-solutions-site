@@ -3,6 +3,7 @@ import { CurrentYear } from "@/components/CurrentYear";
 import { IndustryTabs } from "@/components/IndustryTabs";
 import { OpportunityFinder } from "@/components/OpportunityFinder";
 import { SiteHeader } from "@/components/SiteHeader";
+import { CONSULTATION_BOOKING_URL } from "@/lib/site";
 
 const services = [
   {
@@ -133,7 +134,10 @@ export default function Home() {
                 </a>
                 <a
                   className="button button-secondary"
-                  href="mailto:intake@sanaresolutions.ca?subject=Consultation%20request"
+                  href={CONSULTATION_BOOKING_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Book a consultation through Google Calendar (opens in a new tab)"
                   data-event="hero_secondary_cta_click"
                 >
                   Book a consultation
