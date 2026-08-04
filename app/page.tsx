@@ -124,7 +124,7 @@ export default function Home() {
           <div className="container hero-grid">
             <div className="hero-copy reveal">
               <p className="eyebrow">Practical AI automation for growing businesses</p>
-              <h1 id="hero-title">Eliminate repetitive work without replacing the systems your team already knows.</h1>
+              <h1 id="hero-title">Automate repetitive work. Keep the tools your team knows.</h1>
               <p className="hero-lede">
                 Sanare Solutions designs tailored AI and workflow automations for Microsoft 365, Google Workspace, email, documents and everyday business operations—helping teams reduce manual steps, respond faster and work more consistently.
               </p>
