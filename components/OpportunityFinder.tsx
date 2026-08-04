@@ -229,6 +229,7 @@ export function OpportunityFinder() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileVersion, setTurnstileVersion] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousStepRef = useRef(step);
   const handleToken = useCallback((token: string) => setTurnstileToken(token), []);
   const recommendation = useMemo(() => rankRecommendations(answers), [answers]);
 
@@ -252,7 +253,9 @@ export function OpportunityFinder() {
   }, [answers, status, step]);
 
   useEffect(() => {
-    headingRef.current?.focus();
+    if (previousStepRef.current === step) return;
+    previousStepRef.current = step;
+    headingRef.current?.focus({ preventScroll: true });
   }, [step]);
 
   const update = <K extends keyof Answers>(key: K, value: Answers[K]) => {

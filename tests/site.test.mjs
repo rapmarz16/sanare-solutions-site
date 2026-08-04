@@ -163,9 +163,12 @@ test("ships Cloudflare Pages and accessibility support files", async () => {
   ]);
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const headers = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
+  const opportunityFinder = await readFile(new URL("../components/OpportunityFinder.tsx", import.meta.url), "utf8");
   assert.match(css, /prefers-reduced-motion:\s*reduce/i);
   assert.match(css, /max-width:\s*360px/i);
   assert.match(css, /:focus-visible/i);
   assert.match(headers, /Content-Security-Policy/i);
   assert.match(headers, /Strict-Transport-Security/i);
+  assert.match(opportunityFinder, /previousStepRef\.current === step/i);
+  assert.match(opportunityFinder, /focus\(\{ preventScroll: true \}\)/i);
 });
