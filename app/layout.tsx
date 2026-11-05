@@ -48,10 +48,10 @@ export default function RootLayout({
   return (
     <html lang="en-CA">
       <head>
-        <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" sizes="32x32" />
-        <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
-        <link rel="shortcut icon" href="/favicon.ico?v=2" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+        <link rel="icon" href="/favicon.ico?v=3" type="image/x-icon" sizes="32x32" />
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.ico?v=3" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
       </head>
       <body>{children}</body>
     </html>
