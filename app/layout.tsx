@@ -8,14 +8,6 @@ export const metadata: Metadata = {
   description:
     "Tailored AI consulting, workflow automation, Microsoft 365 and Google Workspace solutions, email automation, and team training for growing organizations.",
   alternates: { canonical: "/" },
-  icons: {
-    icon: [
-      { url: "/favicon.ico?v=2", type: "image/x-icon", sizes: "32x32" },
-      { url: "/favicon.svg?v=2", type: "image/svg+xml", sizes: "any" },
-    ],
-    shortcut: "/favicon.ico?v=2",
-    apple: "/apple-touch-icon.png?v=2",
-  },
   openGraph: {
     type: "website",
     locale: "en_CA",
@@ -55,6 +47,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-CA">
+      <head>
+        <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" sizes="32x32" />
+        <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+      </head>
       <body>{children}</body>
     </html>
   );
