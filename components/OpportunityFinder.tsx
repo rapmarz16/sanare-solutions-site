@@ -327,8 +327,8 @@ export function OpportunityFinder() {
           consentTimestamp: new Date().toISOString(),
         }),
       });
-      const result = await response.json().catch(() => ({})) as { message?: string };
-      if (!response.ok) throw new Error(result.message || "Your assessment could not be sent.");
+      const result = await response.json().catch(() => ({})) as { ok?: boolean; message?: string };
+      if (!response.ok || result.ok !== true) throw new Error(result.message || "Your assessment could not be sent. Please use the email option below.");
       sessionStorage.removeItem(STORAGE_KEY);
       setStatus("success");
       setStatusMessage("Your assessment has been sent. Sanare Solutions will review your context and follow up by email.");

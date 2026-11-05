@@ -48,7 +48,7 @@ export function SiteHeader() {
           rel="noreferrer"
           aria-label="Book a consultation through Google Calendar (opens in a new tab)"
         >
-          Book a consultation
+          Let’s talk <span aria-hidden="true">↗</span>
         </a>
         <button
           className="menu-toggle"
@@ -61,7 +61,7 @@ export function SiteHeader() {
           <span /><span /><span />
         </button>
       </div>
-      <div className={`mobile-menu${open ? " is-open" : ""}`} id="mobile-menu">
+      <div className={`mobile-menu${open ? " is-open" : ""}`} id="mobile-menu" inert={!open}>
         <nav aria-label="Mobile navigation">
           {links.map(([label, href]) => (
             <a href={href} key={href} onClick={() => setOpen(false)}>{label}</a>

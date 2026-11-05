@@ -73,7 +73,8 @@ test("server-renders the complete Sanare Solutions page", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Sanare Solutions \| Practical AI and Business Automation<\/title>/i);
-  assert.match(html, /Automate repetitive work\. Keep the tools your team knows/i);
+  assert.match(html, /Less busywork\./i);
+  assert.match(html, /possibility/i);
   assert.match(html, /Book a 30-minute workflow review/i);
   assert.match(html, /Take the 3-minute AI assessment/i);
   assert.match(html, /Toronto-based/i);
@@ -83,7 +84,7 @@ test("server-renders the complete Sanare Solutions page", async () => {
   assert.match(html, /AI Opportunity Finder/i);
   assert.match(html, /href="\/privacy"/i);
   const bookingLinks = html.match(/href="https:\/\/calendar\.app\.google\/d57sRSm27Q3RN9XeA"/g) ?? [];
-  assert.equal(bookingLinks.length, 3);
+  assert.equal(bookingLinks.length, 4);
   assert.match(html, /Book a consultation through Google Calendar \(opens in a new tab\)/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });

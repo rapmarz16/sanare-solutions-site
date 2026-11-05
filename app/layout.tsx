@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./redesign.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sanaresolutions.ca"),
@@ -22,9 +23,9 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og.png",
-        width: 1733,
-        height: 909,
-        alt: "Sanare Solutions — Practical AI built around your business",
+        width: 1200,
+        height: 630,
+        alt: "Sanare Solutions — Less busywork. More possibility.",
       },
     ],
   },
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0B211B",
+  themeColor: "#243F93",
 };
 
 export default function RootLayout({
