@@ -51,8 +51,8 @@ export function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const result = await response.json().catch(() => ({})) as { message?: string };
-      if (!response.ok) throw new Error(result.message || "Your message could not be sent.");
+      const result = await response.json().catch(() => ({})) as { ok?: boolean; message?: string };
+      if (!response.ok || result.ok !== true) throw new Error(result.message || "Your message could not be sent. Please use the email option below.");
       form.reset();
       setTurnstileToken("");
       setTurnstileVersion((value) => value + 1);
